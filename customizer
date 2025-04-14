@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Agent Configuration Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mohave:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --white: #ffffff;
+            --yellow: #f5c518;
+            --blue: #4a90e2;
+            --light-gray: #f3f3ef;
+            --cream: #f9e8d2;
+            --bright-red: #F7344C;
+            --off-white: #fbf6f1;
+            --dark-blue: #367ed1;
+            --black: #000000;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --medium-gray: #E0E0E0;
+        }
+        
+        /* Typography improvements */
+        body {
+            font-family: 'Mohave', sans-serif;
+            font-weight: 400;
+            font-size: 18px;
+            color: var(--black);
+            background-color: var(--light-gray);
+            line-height: 1.6;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Mohave', sans-serif;
+            font-weight: 300;
+            font-style: italic;
+            font-variation-settings: 'wght' 300, 'ital' 1;
+            color: var(--dark-blue);
+            font-size: 28px;
+        }
+        .video-container {
+    border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1), 
+                        0 0 0 1px rgba(0,0,0,0.05), 
+                        inset 0 1px 0 rgba(255,255,255,0.5);
+            background: linear-gradient(to bottom, #f8f8f8, #f2f2f2);
+            position: relative;
+            overflow: hidden;
+            /* Add these properties for aspect ratio */
+            width: 100%;
+            padding-bottom: calc(56.25% + 20px); /* 16:9 aspect ratio plus padding */
+            margin-bottom: 20px;
+        }
+
+        .video-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent);
+            z-index: 1;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: calc(100% - 20px);
+            height: calc(100% - 20px);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
+        }
+            .generate-button, #generateBtn, #copyBtn, #generateAndCopyBtn {
+                background-color: var(--black);
+                color: var(--white);
+                padding: 12px 24px;
+                border-radius: 12px;
+                border: none;
+                font-size: 20px;
+                font-weight: 400;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                margin-top: 20px;
+                box-shadow: 4px 4px 0px 0px var(--bright-red);
+                position: relative;
+                left: 0;
+                min-width: 220px;
+                text-align: center;
+            }
+            
+            .generate-button:hover, #generateBtn:hover, #copyBtn:hover, #generateAndCopyBtn:hover {
+                background-color: #333333;
+                transform: translate(4px, -4px);
+                box-shadow: 8px 8px 0px 0px var(--bright-red);
+            }
+            
+            /* Button container for alignment */
+            .button-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 20px;
+                margin-top: 30px;
+                margin-bottom: 30px;
+            }
+            /* Copy button animation */
+            @keyframes copyFlash {
+                0% { background-color: var(--black); }
+                50% { background-color: var(--bright-red); }
+                100% { background-color: var(--black); }
+            }
+
+            .copy-animation {
+                animation: copyFlash 1s ease;
+            }
+        }
+        
+        .video-caption-box {
+
+.copy-animation {
+    animation: copyFlash 1s ease;
+}
+        }
+        
+        .video-caption-box {
+            background-color: var(--medium-gray);
+            border-radius: 0 0 8px 8px;
+            padding: 12px 15px;
+            margin-top: 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1), inset 0 1px 3px rgba(255,255,255,0.7);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            font-weight: 400;
+            text-align: center;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+        h1 {
+            font-size: 42px;
+        }
+        
+        h2 {
+            font-size: 34px;
+        }
+        
+        .main-title {
+            font-size: 42px;
+            color: var(--bright-red);
+            font-weight: 600;
+        }
+        
+        p, label, select, option, button, div, span, textarea {
+            font-family: 'Mohave', sans-serif;
+            font-size: 18px;
+            font-weight: 400;
+        }
+        
+        .header {
+            background-color: var(--white);
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--bright-red);
+            overflow: hidden;
+        }
+        
+        .header img {
+            height: 300px;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .container {
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .question-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: var(--white);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 3px solid var(--bright-red);
+        }
+        
+        .question-header {
+            background-color: var(--light-gray);
+            border-radius: 8px 8px 0 0;
+            padding: 12px 15px;
+            margin: -20px -20px 15px -20px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 500;
+            color: var(--dark-blue);
+            width: calc(100% + 40px);
+        }
+        
+        .dropdown-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .preview-box {
+            margin-top: 15px;
+            padding: 12px;
+            font-size: 18px;
+            background-color: var(--off-white);
+            border-radius: 6px;
+            border-left: 4px solid var(--blue);
+            min-height: 80px;
+            max-height: 120px;
+            height: auto;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+            box-sizing: border-box;
+            width: 100%;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--blue) var(--off-white);
+        }
+        
+        .preview-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .preview-box::-webkit-scrollbar-track {
+            background: var(--off-white);
+        }
+        
+        .preview-box::-webkit-scrollbar-thumb {
+            background-color: var(--blue);
+            border-radius: 6px;
+        }
+        
+        .preview-label {
+            font-weight: 400;
+            font-size: 22px;
+            margin-bottom: 5px;
+            color: var(--blue);
+        }
+        
+        .preview-box p {
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+        
+        .preview-divider {
+            height: 1px;
+            background-color: var(--blue);
+            opacity: 0.3;
+            margin: 6px 0;
+        }
+        #generatedTemplate {
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            background-color: var(--off-white);
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--dark-blue) var(--off-white);
+            line-height: 1.4;
+            letter-spacing: 0.5px;
+        }
+        
+        #generatedTemplate::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #generatedTemplate::-webkit-scrollbar-track {
+            background: var(--off-white);
+        }
+        
+        #generatedTemplate::-webkit-scrollbar-thumb {
+            background-color: var(--dark-blue);
+            border-radius: 8px;
+        }
+        
+        /* Enhanced Dropdown Styling */
+        .select, select {
+            padding: 10px 14px;
+            border: 1px solid #d9d0c0;
+            border-radius: 8px;
+            background-color: var(--off-white);
+            font-family: 'Mohave', sans-serif;
+            font-size: 18px;
+            font-weight: 400;
+            color: var(--text-primary);
+            min-width: 180px;
+            appearance: none; /* Remove default arrow */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23367ed1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+            box-shadow: 3px 3px 0px 0px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            position: relative;
+            left: 0;
+            top: 0;
+        }
+        
+        /* Special styling for the bates_paren_end select element to make it narrower */
+        #bates_paren_end.select, #bates_paren_end {
+            min-width: 70px !important;
+            width: 70px !important;
+            padding-right: 30px !important; /* Reduce padding to fit the dropdown arrow */
+        }
+        
+        /* Make the open parenthesis dropdown smaller */
+        #bates_paren_start.select, #bates_paren_start {
+            min-width: 70px !important;
+            width: 70px !important;
+            padding-right: 30px !important; /* Reduce padding to fit the dropdown arrow */
+        }
+        
+        /* Make date separator dropdowns smaller */
+        #date_separator1.select, #date_separator1,
+        #date_separator2.select, #date_separator2 {
+            min-width: 70px !important;
+            width: 70px !important;
+            padding-right: 30px !important; /* Reduce padding to fit the dropdown arrow */
+        }
+        
+        .select:hover, select:hover {
+            border-color: var(--blue);
+            transform: translate(2px, -2px);
+            box-shadow: 5px 5px 0px 0px rgba(0,0,0,0.3);
+        }
+        
+        .select:focus, select:focus {
+            outline: none;
+            border-color: var(--blue);
+            transform: translate(2px, -2px);
+            box-shadow: 5px 5px 0px 0px rgba(0,0,0,0.3);
+        }
+        
+        /* Style for dropdown options */
+        select option {
+            font-family: 'Mohave', sans-serif;
+            font-size: 18px;
+            padding: 10px;
+            background-color: var(--off-white);
+        }
+        
+        /* Style for disabled options */
+        select option:disabled {
+            color: #aaaaaa;
+            font-style: italic;
+            background-color: #e8e0d0;
+        }
+        
+        /* Enhanced Button Styling */
+        .btn-primary, #generateBtn, .generate-button {
+            background-color: var(--bright-red);
+            color: var(--white);
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-size: 20px;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.8);
+            position: relative;
+            left: 0;
+        }
+        
+        .btn-primary:hover, #generateBtn:hover, .generate-button:hover {
+            background-color: #E74C3C;
+            transform: translate(4px, -4px);
+            box-shadow: 8px 8px 0px 0px rgba(0,0,0,0.8);
+        }
+        
+        .btn-secondary, #copyBtn {
+            background-color: var(--dark-blue);
+            color: var(--white);
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-size: 20px;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.8);
+            position: relative;
+            left: 0;
+        }
+        
+        .btn-secondary:hover, #copyBtn:hover {
+            background-color: #2c6bb2;
+            transform: translate(4px, -4px);
+            box-shadow: 8px 8px 0px 0px rgba(0,0,0,0.8);
+        }
+        
+        .instructions-box {
+            background-color: var(--cream);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 3px solid var(--yellow);
+        }
+        
+        .placeholder-guide {
+            background-color: #f0f9ff;
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 12px;
+        }
+        
+        /* Preview container styling */
+        .preview-container {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 3px solid var(--blue);
+        }
+        
+        .format-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .format-table th {
+            background-color: var(--light-gray);
+            color: var(--dark-blue);
+            font-weight: 500;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .component-label {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-right: 10px;
+            min-width: 120px;
+        }
+        
+        .placeholder-guide {
+            background-color: #f0f9ff;
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 12px;
+            font-size: 18px;
+            border-left: 3px solid var(--blue);
+            font-weight: 400;
+        }
+        
+        .instructions-box {
+            background-color: var(--white);
+            border-radius: 8px;
+            font-size: 18px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 3px solid var(--bright-red);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .instructions-textarea {
+            width: 100%;
+            min-height: 400px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            padding: 10px;
+            padding-left: 10px; /* Reduced left padding */
+            font-family: 'Mohave', sans-serif;
+            font-size: 18px;
+            font-weight: 400;
+            margin-bottom: 15px;
+            white-space: pre-line; /* Preserves line breaks but collapses whitespace */
+        }
+        .btn-animate {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(247, 52, 76, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(247, 52, 76, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(247, 52, 76, 0);
+            }
+        }
+        
+        /* Style for headers inside the generated template */
+        #generatedTemplate h1, 
+        #generatedTemplate h2, 
+        #generatedTemplate h3, 
+        #generatedTemplate h4, 
+        #generatedTemplate h5, 
+        #generatedTemplate h6 {
+            font-size: 16px;
+            color: var(--black);
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-style: normal;
+            font-family: 'Courier New', monospace;
+        }
+        
+        #generatedTemplate h1 {
+            font-size: 18px;
+        }
+
+        /* Make the bates_paren_end_container dropdown narrower */
+        #bates_paren_end_container {
+            width: 70px; /* Reduced width for this specific dropdown */
+        }
+        
+        /* Target the select element inside the container */
+        #bates_paren_end {
+            min-width: 70px !important; /* Override the default min-width */
+            width: 70px !important; /* Set a fixed width */
+        }
+    </style>
+</head>
+<body>
+    <div class="header flex justify-center items-center">
+        <img src="https://i.imgur.com/hkiUdqR.gif" alt="Logo">
+    </div>
+    
+    <div class="container mx-auto max-w-6xl p-6">
+        <h1 class="font-bold mb-4 text-center main-title">Custom Agent Configuration Tool</h1>
+        <p class="mb-4 text-center text-sm">By answering these questions, a personalized template will be created so that the exhibit descriptions match your styling.</p>
+
+                
+                <!-- Video Tutorial -->
+                <div class="video-container">
+                    <!-- Google Drive Embed -->
+                    <iframe src="https://drive.google.com/file/d/1dPhZgcQT7Am7rxuVwn-1cFY68Ybrd20n/preview" 
+                    width="100%" 
+                    height="450" 
+                    allow="autoplay" 
+                    allowfullscreen>
+                </iframe>
+                </div>
+                
+                <textarea id="instructionsTextarea" class="instructions-textarea">• Select options from each dropdown menu
+                    • The preview will update automatically to show your selections
+                    • When finished, click "Generate and Copy" to get your custom format
+                    
+                    For more complex formats, you can combine multiple options.</textarea>
+                <div class="flex justify-between items-center">
+                    <div id="saveStatus" class="save-status"></div>
+                </div>
+            </div>
+            
+            <!-- Question 1: Bates -->
+            <div id="bates-question" class="question-container">
+                <h1 class="text-lg font-semibold mb-2">Question 1: Bates Number Format</h1>
+                <p class="mb-3">How would you format this? How would you format this Bates range: (XYZ123 - XYZ133)?
+
+                    <div class="placeholder-guide">
+                    Select options until the preview box matches your style preference.    
+                </div>
+            
+                <div class="dropdown-row">
+                    <div class="dropdown-field">
+                        <select id="bates_paren_start" class="select select-bordered">
+                            <option value=""></option>
+                            <option value="(">(</option>
+                        </select>
+                    </div>
+                    
+                    <div class="static-text mx-1">XYZ123</div>
+                    
+                    <div class="dropdown-field">
+                        <select id="bates_separator" class="select select-bordered">
+                            <option value=" - ">-</option>
+                            <option value=" to ">to</option>
+                            <option value=" through ">through</option>
+                        </select>
+                    </div>
+                    
+                    <div class="dropdown-field">
+                        <select id="bates_end_number" class="select select-bordered">
+                            <option value="XYZ133">XYZ133</option>
+                            <option value="133">133</option>
+                        </select>
+                    </div>
+                    
+                    <div class="dropdown-field" id="bates_paren_end_container">
+                        <!-- This will be set automatically to match bates_paren_start -->
+                    </div>
+                </div>
+                
+                <div class="preview-box">
+                    <p class="preview-label">Preview:</p>
+                    <p id="bates-preview"></p>
+                    <div class="preview-divider"></div>
+                    <p class="text-sm text-gray-600">Format: <span id="bates-format-pattern"></span></p>
+                </div>
+            </div>
+
+            <!-- Question 2: Date Format -->
+            <div id="date-question" class="question-container">
+                <h1 class="text-lg font-semibold mb-2">Question 2: Date Format</h1>
+                <p class="mb-3">Recreate this date in numbers: January 4, 2025.</p>
+                <div class="placeholder-guide">
+                    Select options until the preview box matches your style preference.
+                </div>
+    
+                <div class="dropdown-row">
+                    <div class="dropdown-field">
+                        <select id="date_part1" class="select select-bordered date-select">
+                            <option value="1">1</option>
+                            <option value="01">01</option>
+                        </select>
+                    </div>
+                    
+                    <div class="dropdown-field">
+                        <select id="date_separator1" class="select select-bordered date-select">
+                            <option value="/">/</option>
+                            <option value="-">-</option>
+                            <option value=".">.</option>
+                        </select>
+                    </div>
+                    
+                    <div class="dropdown-field">
+                        <select id="date_part2" class="select select-bordered date-select">
+                            <option value="4">4</option>
+                            <option value="04">04</option>
+                        </select>
+                    </div>
+                    
+                    <div class="dropdown-field" id="date_separator2_container">
+                        <!-- This will be set automatically to match date_separator1 -->
+                    </div>
+                    
+                    <div class="dropdown-field">
+                        <select id="date_year" class="select select-bordered date-select">
+                            <option value="25">25</option>
+                            <option value="2025">2025</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="preview-box">
+                    <p class="preview-label">Preview:</p>
+                    <p id="date-preview"></p>
+                    <div class="preview-divider"></div>
+                    <p class="text-sm text-gray-600">Format: <span id="date-format-pattern"></span></p>
+                </div>
+            </div>
+
+            <!-- Question 3: Email Format - Redesigned with 7 identical dropdowns -->
+            <div id="email-question" class="question-container">
+                <h1 class="text-lg font-semibold mb-2">Question 3: Email Format</h1>
+                <p class="mb-3">How would you format this?
+                    <br>Email from Jake Ryan to Samantha Baker, Grandma Helen, Farmer Ted, Ginny Baker, and others, dated 4/1/25, Subject "My birthday next year," with attachments, "Dinner Options.pdf," "Guest List.xlsx," "Gift Registry.doc"
+                </p>
+                
+                <div class="placeholder-guide">
+                    Select options until the preview box matches your style preference.
+                </div>
+                
+                <div class="grid grid-cols-1 gap-3 mb-4">
+                    <!-- Component 1 -->
+                    <div>
+                        <p class="component-label">Component 1:</p>
+                        <select id="email_component1" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Component 2 -->
+                    <div>
+                        <p class="component-label">Component 2:</p>
+                        <select id="email_component2" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Component 3 -->
+                    <div>
+                        <p class="component-label">Component 3:</p>
+                        <select id="email_component3" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Component 4 -->
+                    <div>
+                        <p class="component-label">Component 4:</p>
+                        <select id="email_component4" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Component 5 -->
+                    <div>
+                        <p class="component-label">Component 5:</p>
+                        <select id="email_component5" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Component 6 -->
+                    <div>
+                        <p class="component-label">Component 6:</p>
+                        <select id="email_component6" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Component 7 -->
+                    <div>
+                        <p class="component-label">Component 7:</p>
+                        <select id="email_component7" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Attachment dropdown -->
+                    <div>
+                        <p class="component-label">Attachments:</p>
+                        <select id="email_attachment" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="preview-box">
+                    <p class="preview-label">Preview:</p>
+                    <p id="email-preview"></p>
+                    <div class="preview-divider"></div>
+                    <p class="text-sm text-gray-600">Format: <span id="email-format-pattern"></span></p>
+                </div>
+            </div>
+
+            <!-- Question 4: Email Thread Format -->
+            <div id="email-thread-question" class="question-container">
+                <h1 class="text-lg font-semibold mb-2">Question 4: Email Thread Format</h1>
+                <p class="mb-3">How would you format this?
+                    <br>Email chain ending with an email from Jake Ryan to Samantha Baker, Grandma Helen, Farmer Ted, Ginny Baker, and others, dated 4/1/25, Subject "My birthday next year," with attachments, "Dinner Options.pdf," "Guest List.xlsx," "Gift Registry.doc"
+                </p>
+                
+                <div class="placeholder-guide">
+                    Select options until the preview box matches your style preference.
+                    <br>Note: The word email is already incorporated into the instructions.
+                </div>
+                
+                <div class="grid grid-cols-1 gap-3 mb-4">
+                    <!-- Thread Component 1 -->
+                    <div>
+                        <p class="component-label">Component 1:</p>
+                        <select id="email_thread_component1" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Thread Component 2 -->
+                    <div>
+                        <p class="component-label">Component 2:</p>
+                        <select id="email_thread_component2" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Thread Component 3 -->
+                    <div>
+                        <p class="component-label">Component 3:</p>
+                        <select id="email_thread_component3" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Thread Component 4 -->
+                    <div>
+                        <p class="component-label">Component 4:</p>
+                        <select id="email_thread_component4" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Thread Component 5 -->
+                    <div>
+                        <p class="component-label">Component 5:</p>
+                        <select id="email_thread_component5" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Thread Component 6 -->
+                    <div>
+                        <p class="component-label">Component 6:</p>
+                        <select id="email_thread_component6" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Thread Component 7 -->
+                    <div>
+                        <p class="component-label">Component 7:</p>
+                        <select id="email_thread_component7" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Thread Attachment dropdown -->
+                    <div>
+                        <p class="component-label">Attachments:</p>
+                        <select id="email_thread_attachment" class="select select-bordered w-full">
+                            <option value=""></option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="preview-box">
+                    <p class="preview-label">Preview:</p>
+                    <p id="email-thread-preview"></p>
+                    <div class="preview-divider"></div>
+                    <p class="text-sm text-gray-600">Format: <span id="email-thread-format-pattern"></span></p>
+                </div>
+            </div>
+            
+            <!-- Note about exhibit descriptions format -->
+            <div class="question-container mt-6 bg-amber-50">
+                <h2 class="text-lg font-semibold mb-2">Exhibit Descriptions Format</h2>
+                <p class="mb-3">If you would like to have the descriptions in any format other than the default, which is in a table format, followed by a list with the exhibit number on one line, the description on the next, and the Bates/page count on the third line, give the agent an example and indicate you want all of your descriptions formatted this way from now on.</p>
+            </div>
+        </div>
+    </div>
+</div>
+        <div class="flex justify-center mt-6 mb-6">
+            <button id="generateAndCopyBtn" class="btn-primary">Generate and Copy</button>
+        </div>
+        
+        <div class="template-container p-5 rounded-lg">
+            <h2 class="text-xl font-semibold mb-3">Generated Instructions:</h2>
+            <div id="generatedTemplate" class="p-4 rounded-lg min-h-40">
+                <!-- Generated template with replaced variables will appear here -->
+                Complete all questions above and click "Generate Instructions" to create your custom template.
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    // Define example data
+    const exampleAttorney = {
+        name: 'Charles Kelley',
+        firm: 'MAYER BROWN LLP',
+        address: '700 Louisiana Street, Suite 3400',
+        city: 'Houston',
+        state: 'Texas',
+        zip: '77002',
+        email: 'ckelley@mayerbrown.com',
+        phone: '713-238-2634'
+    };
+    
+    // Define options for email components
+    const emailComponentOptions = [
+        "",
+        "Email",
+            "Email", 
+            "from",
+            "between",
+            "communication",
+            "thread",
+            "exchange",
+            "string",
+            "chain",
+            ", dated [DATE]",
+            ", [DATE]",
+            "; [DATE]",
+            " [DATE]",
+            ", dated [DATE]",
+            "; dated [DATE]",
+            "[SENDER] to [RECIPIENT]",
+            "[SENDER] and [RECIPIENT]",
+            "from [SENDER] to [RECIPIENT]",
+            "between [SENDER] and [RECIPIENT]",
+            ", [SENDER] to [RECIPIENT]",
+            "[SENDER], [RECIPIENT]",
+            "[SENDER]",
+            "[RECIPIENT]",
+            ", [RECIPIENT]",
+            "ending with an email from [SENDER] to [RECIPIENT]",
+            "ending with an email between [SENDER] and [RECIPIENT]",
+            ", Subject \"[SUBJECT]\"",
+            "; Subject: \"[SUBJECT]\"",
+            ", Subject: \"[SUBJECT]\"",
+            "; Subject [SUBJECT]",
+            ", CC to:",
+            "; CC to:",
+            ", CC to",
+            "; CC to",
+            ", and others",
+            ", [FIRST THREE RECIPIENTS], and others",
+            "; [FIRST THREE RECIPIENTS], and others",
+            "to multiple recipients"
+    ];
+    
+    // Define options specific to email threads
+    const threadSpecificOptions = [
+        "",
+        "Email",
+            "Email", 
+            "from",
+            "between",
+            "communication",
+            "thread",
+            "exchange",
+            "string",
+            "chain",
+            ", dated [DATE]",
+            ", [DATE]",
+            "; [DATE]",
+            " [DATE]",
+            ", dated [DATE]",
+            "; dated [DATE]",
+            "[SENDER] to [RECIPIENT]",
+            "[SENDER] and [RECIPIENT]",
+            "from [SENDER] to [RECIPIENT]",
+            "between [SENDER] and [RECIPIENT]",
+            ", [SENDER] to [RECIPIENT]",
+            "[SENDER], [RECIPIENT]",
+            "[SENDER]",
+            "[RECIPIENT]",
+            ", [RECIPIENT]",
+            "ending with an email from [SENDER] to [RECIPIENT]",
+            "ending with an email between [SENDER] and [RECIPIENT]",
+            ", Subject \"[SUBJECT]\"",
+            "; Subject: \"[SUBJECT]\"",
+            ", Subject: \"[SUBJECT]\"",
+            "; Subject [SUBJECT]",
+            ", CC to:",
+            "; CC to:",
+            ", CC to",
+            "; CC to",
+            ", and others",
+            ", [FIRST THREE RECIPIENTS], and others",
+            "; [FIRST THREE RECIPIENTS], and others",
+            "to multiple recipients"
+    ];
+    
+    // Define options for email attachments
+    const emailAttachmentOptions = [
+        "",
+        ", with attachments \"Dinner Options.pdf,\" \"Guest List.xlsx,\" \"Gift Registry.doc\"",
+            "with attachments: Dinner Options.pdf, Guest List.xlsx, Gift Registry.doc",
+            ", Attachments: Dinner Options.pdf, Guest List.xlsx, Gift Registry.doc",
+            ", Attachments: \"Dinner Options.pdf,\" \"Guest List.xlsx,\" \"Gift Registry.doc\"",
+            "; Attachments: Dinner Options.pdf, Guest List.xlsx, Gift Registry.doc",
+            "; Attachments: \"Dinner Options.pdf,\" \"Guest List.xlsx,\" \"Gift Registry.doc\"",
+            "Attachments:",
+            "with attachments"
+    ];
+    
+    // Populate dropdowns with options
+    function populateDropdowns() {
+        // Populate email component dropdowns
+        for (let i = 1; i <= 7; i++) {
+            const dropdown = document.getElementById(`email_component${i}`);
+            if (dropdown) {
+                emailComponentOptions.forEach(option => {
+                    const newOption = document.createElement('option');
+                    newOption.value = option;
+                    newOption.textContent = option;
+                    dropdown.appendChild(newOption);
+                });
+            }
+        }
+        
+        // Populate email thread component dropdowns
+        for (let i = 1; i <= 7; i++) {
+            const dropdown = document.getElementById(`email_thread_component${i}`);
+            if (dropdown) {
+                threadSpecificOptions.forEach(option => {
+                    const newOption = document.createElement('option');
+                    newOption.value = option;
+                    newOption.textContent = option;
+                    dropdown.appendChild(newOption);
+                });
+            }
+        }
+        
+        // Populate email attachment dropdown
+        const attachmentDropdown = document.getElementById('email_attachment');
+        if (attachmentDropdown) {
+            emailAttachmentOptions.forEach(option => {
+                const newOption = document.createElement('option');
+                newOption.value = option;
+                newOption.textContent = option;
+                attachmentDropdown.appendChild(newOption);
+            });
+        }
+        
+        // Populate email thread attachment dropdown
+        const threadAttachmentDropdown = document.getElementById('email_thread_attachment');
+        if (threadAttachmentDropdown) {
+            emailAttachmentOptions.forEach(option => {
+                const newOption = document.createElement('option');
+                newOption.value = option;
+                newOption.textContent = option;
+                threadAttachmentDropdown.appendChild(newOption);
+            });
+        }
+    }
+    
+    // Bates Number Format Logic
+    const batesParenStart = document.getElementById('bates_paren_start');
+    const batesSeparator = document.getElementById('bates_separator');
+    const batesEndNumber = document.getElementById('bates_end_number');
+    const batesParenEndContainer = document.getElementById('bates_paren_end_container');
+    const batesPreview = document.getElementById('bates-preview');
+    const batesFormatPattern = document.getElementById('bates-format-pattern');
+    
+    // Create the end parenthesis that mirrors the start
+    const batesParenEnd = document.createElement('select');
+    batesParenEnd.id = 'bates_paren_end';
+    batesParenEnd.className = 'select select-bordered';
+    batesParenEnd.disabled = true; // This will always mirror the start parenthesis
+    batesParenEndContainer.appendChild(batesParenEnd);
+    
+    // Add options to match the start parenthesis
+    const endOption1 = document.createElement('option');
+    endOption1.value = '';
+    endOption1.textContent = ''; 
+    batesParenEnd.appendChild(endOption1);
+    
+    const endOption2 = document.createElement('option');
+    endOption2.value = ')';
+    endOption2.textContent = ')';
+    batesParenEnd.appendChild(endOption2);
+    
+    function updateBatesPreview() {
+        // Mirror the start parenthesis to the end
+        if (batesParenStart.value === '(') {
+            batesParenEnd.value = ')';
+        } else {
+            batesParenEnd.value = '';
+        }
+        
+        const startParen = batesParenStart.value;
+        const separator = batesSeparator.value;
+        const endNum = batesEndNumber.value;
+        const endParen = batesParenEnd.value;
+        
+        // Update preview
+        batesPreview.textContent = `${startParen}XYZ123${separator}${endNum}${endParen}`;
+        
+        // Update format pattern with the actual separator
+        let formatPattern = '';
+        formatPattern += startParen ? '[Opening Parenthesis]' : '';
+        formatPattern += 'StartID';
+        formatPattern += separator; // Use the actual separator
+        formatPattern += 'EndID';
+        formatPattern += endParen ? '[Closing Parenthesis]' : '';
+        
+        batesFormatPattern.textContent = formatPattern;
+    }
+    
+    // Date Format Logic
+    const datePart1 = document.getElementById('date_part1');
+    const dateSeparator1 = document.getElementById('date_separator1');
+    const datePart2 = document.getElementById('date_part2');
+    const dateSeparator2Container = document.getElementById('date_separator2_container');
+    const dateYear = document.getElementById('date_year');
+    const datePreview = document.getElementById('date-preview');
+    const dateFormatPattern = document.getElementById('date-format-pattern');
+    
+    // Create the second separator that mirrors the first
+    const dateSeparator2 = document.createElement('select');
+    dateSeparator2.id = 'date_separator2';
+    dateSeparator2.className = 'select select-bordered date-select';
+    dateSeparator2.disabled = true; // This will always mirror separator1
+    dateSeparator2Container.appendChild(dateSeparator2);
+    
+    // Add options to match the first separator
+    const sep2Option1 = document.createElement('option');
+    sep2Option1.value = '/';
+    sep2Option1.textContent = '/';
+    dateSeparator2.appendChild(sep2Option1);
+
+    // Add the "-" option
+    const sep2Option2 = document.createElement('option');
+sep2Option2.value = '-';
+sep2Option2.textContent = '-';
+dateSeparator2.appendChild(sep2Option2);
+
+// Add the "." option
+const sep2Option3 = document.createElement('option');
+sep2Option3.value = '.';
+sep2Option3.textContent = '.';
+dateSeparator2.appendChild(sep2Option3);
+    
+    function updateDatePreview() {
+        // Mirror the first separator to the second
+        dateSeparator2.value = dateSeparator1.value;
+        
+        // Get the values directly from the dropdowns
+        let part1 = datePart1.value;
+        let separator = dateSeparator1.value;
+        let part2 = datePart2.value;
+        let year = dateYear.value;
+        
+        // Build the formatted date string
+        let formattedDate = `${part1}${separator}${part2}${separator}${year}`;
+        
+        // Update the date preview
+        datePreview.textContent = formattedDate;
+        
+        // Also update date placeholders
+        if (document.getElementById('date-placeholder')) {
+            document.getElementById('date-placeholder').textContent = formattedDate;
+        }
+        if (document.getElementById('date-placeholder-thread')) {
+            document.getElementById('date-placeholder-thread').textContent = formattedDate;
+        }
+        
+        // Determine the format pattern based on the selected values
+        const monthFormat = part1.length === 2 && part1.startsWith('0') ? 'MM' : 'M';
+        const dayFormat = part2.length === 2 && part2.startsWith('0') ? 'DD' : 'D';
+        const yearFormat = year.length === 2 ? 'YY' : 'YYYY';
+        
+        // Create the format pattern with the correct notation
+        const dateFormatPattern = `[${monthFormat}]${separator}[${dayFormat}]${separator}[${yearFormat}]`;
+        
+        // Update format pattern display
+        document.getElementById('date-format-pattern').textContent = dateFormatPattern;
+        
+        // Also update the email and thread previews
+        updateEmailPreview();
+        updateEmailThreadPreview();
+    }
+    
+    // Email Format Logic
+    function updateEmailPreview() {
+        let emailComponents = [];
+        let emailPattern = [];
+        
+        // Get values from all email component dropdowns
+        for (let i = 1; i <= 7; i++) {
+            const component = document.getElementById(`email_component${i}`).value;
+            if (component) {
+                emailComponents.push(component.replace(/\[SENDER\]/g, "Jake Ryan").replace(/\[RECIPIENT\]/g, "Samantha Baker, Grandma Helen, Farmer Ted").replace(/\[DATE\]/g, "4/1/25").replace(/\[SUBJECT\]/g, "My birthday next year").replace(/\[FIRST THREE RECIPIENTS\]/g, "Samantha Baker, Grandma Helen, Farmer Ted"));
+                emailPattern.push(component);
+            }
+        }
+        
+        // Get attachment value
+        const attachment = document.getElementById('email_attachment').value;
+        if (attachment) {
+            emailComponents.push(attachment.replace(/\[SENDER\]/g, "Jake Ryan").replace(/\[RECIPIENT\]/g, "Samantha Baker, Grandma Helen, Farmer Ted").replace(/\[DATE\]/g, "4/1/25").replace(/\[SUBJECT\]/g, "My birthday next year").replace(/\[FIRST THREE RECIPIENTS\]/g, "Samantha Baker, Grandma Helen, Farmer Ted"));
+            emailPattern.push(attachment);
+        }
+        
+       // Build the formatted email string without automatic commas
+let formattedEmail = '';
+for (let i = 0; i < emailComponents.length; i++) {
+    const component = emailComponents[i];
+    // If it's the first component or already starts with a comma/semicolon, don't add a separator
+    if (i === 0 || component.startsWith(',') || component.startsWith(';')) {
+        formattedEmail += component;
+    } else {
+        // Otherwise add a space (no comma)
+        formattedEmail += ' ' + component;
+    }
+}  
+        // Update the email preview
+        document.getElementById('email-preview').textContent = formattedEmail;
+        
+ // Update the email format pattern without automatic commas
+let emailFormatPattern = '';
+for (let i = 0; i < emailPattern.length; i++) {
+    const component = emailPattern[i];
+    if (i === 0 || component.startsWith(',') || component.startsWith(';')) {
+        emailFormatPattern += component;
+    } else {
+        emailFormatPattern += ' ' + component;
+    }
+}
+document.getElementById('email-format-pattern').textContent = emailFormatPattern;   
+    }
+    // Email Thread Format Logic
+    function updateEmailThreadPreview() {
+        let threadComponents = [];
+        let threadPattern = [];
+        // Get values from all email thread component dropdowns
+        for (let i = 1; i <= 7; i++) {
+            const component = document.getElementById(`email_thread_component${i}`).value;
+            if (component) {
+                threadComponents.push(component.replace(/\[SENDER\]/g, "Jake Ryan").replace(/\[RECIPIENT\]/g, "Samantha Baker, Grandma Helen, Farmer Ted").replace(/\[DATE\]/g, "4/1/25").replace(/\[SUBJECT\]/g, "My birthday next year").replace(/\[FIRST THREE RECIPIENTS\]/g, "Samantha Baker, Grandma Helen, Farmer Ted"));
+                threadPattern.push(component);
+            }
+        }
+        
+        // Get attachment value
+        const attachment = document.getElementById('email_thread_attachment').value;
+        if (attachment) {
+            threadComponents.push(attachment.replace(/\[SENDER\]/g, "Jake Ryan").replace(/\[RECIPIENT\]/g, "Samantha Baker, Grandma Helen, Farmer Ted").replace(/\[DATE\]/g, "4/1/25").replace(/\[SUBJECT\]/g, "My birthday next year").replace(/\[FIRST THREE RECIPIENTS\]/g, "Samantha Baker, Grandma Helen, Farmer Ted"));
+            threadPattern.push(attachment);
+        }
+        
+// Build the formatted email thread string without automatic commas
+        let formattedThread = '';
+        for (let i = 0; i < threadComponents.length; i++) {
+            const component = threadComponents[i];
+            // If it's the first component or already starts with a comma/semicolon, don't add a separator
+            if (i === 0 || component.startsWith(',') || component.startsWith(';')) {
+                formattedThread += component;
+            } else {
+                // Otherwise add a space (no comma)
+                formattedThread += ' ' + component;
+            }
+        }        
+        // Update the email thread preview
+        document.getElementById('email-thread-preview').textContent = formattedThread;
+        
+// Update the email thread format pattern without automatic commas
+let threadFormatPattern = '';
+for (let i = 0; i < threadPattern.length; i++) {
+    const component = threadPattern[i];
+    if (i === 0 || component.startsWith(',') || component.startsWith(';')) {
+        threadFormatPattern += component;
+    } else {
+        threadFormatPattern += ' ' + component;
+    }
+}
+document.getElementById('email-thread-format-pattern').textContent = threadFormatPattern;    
+}
+    
+    // Define the instructions template as a string variable
+    const instructionsTemplate = `# AI Drive Document Analysis and Indexing System
+
+## Protocol Table
+
+| PROTOCOL | TRIGGERED BY (HASHTAG) | PURPOSE | USER INSTRUCTIONS |
+| -------- | ---------------------- | ------- | ----------------- |
+| 1 | #remindme | This table is presented as a reminder. | Type #remindme |
+| 2 | #descriptions | To create a verification table that validates original metadata through text authentication on the first page of each document for the creation of a card catalog (index) of documents, NOT for summarizing contents.<br/><br/>These instructions are for creating a catalog (index) of documents, not for summarizing their contents. You will create a table, then generate a formatted list from that table. The table is the "source of truth," and the final output must match the table exactly. | After adding the documents by typing @ and selecting the exhibit, or dragging them from your PC, type #descriptions and submit. |
+| 3 | #wordlist | Purpose: Generate an alphabetized word list from selected documents, suitable for a court reporter's steno dictionary, emphasizing jargon, technical terms, names, companies, and product names. | After adding the documents by typing @ and selecting the exhibit, or dragging them from your PC, type #wordlist and submit. |
+| 4 | #spelling | Find with fuzzy lookup the correct spelling and location using a phonetic representation from the user. | Type #spelling and the word(s) (pretty much in writing) and receive the correct spelling.<br/>Type #spelling, and then put a list of words to look up, each one on its own line. |
+| 5 | #quote | Find with fuzzy lookup full or partial quote excerpts from user, with the location. | Type #quote and a full or partial excerpt.<br/>Type #quote, and then put a list of quotes to look up, each one on its own line. |
+
+## DESCRIPTIONS PROTOCOL
+
+Triggered by: #descriptions
+
+### PURPOSE AND OVERVIEW
+
+Create a card catalog (index) and validate original metadata through text authentication on the first page of each document. This is for creating a catalog (index) of documents, NOT for summarizing their contents. The verification table serves as the "source of truth," and the final output must match the table exactly.
+
+**CRITICAL PRINCIPLE:** Do NOT infer, summarize, analyze, or interpret document content except where explicitly instructed. Extract ONLY explicit information from the document, following the exact steps below. Accuracy is paramount.
+
+### DOCUMENT PROCESSING WORKFLOW
+
+#### Step 1: Count & Prepare for Processing
+- Count the total number of documents in the folder
+- Keep this number in mind - it will dictate the number of rows in your verification table
+- Create a verification table with exactly three columns:
+  - Exhibit Number (File Name Without Extension or Folder Name)
+  - Description
+  - Bates Number (Start-End or Page Count)
+
+#### Step 2: Extract Exhibit Number (Document Number)
+**CRITICAL RULE:** The exhibit number is ONLY determined by the file name, NEVER by processing order.
+
+For each document:
+- Extract the file name without the extension (e.g., "P23.pdf" becomes "P23")
+- Remove any preceding folder names (e.g., "Jones/P26.pdf" becomes "P26")
+- Enter this result in the Exhibit Number column of the verification table
+- The number of rows in the table must match the number of documents counted
+
+#### Step 3: Create Description (FIRST PAGE ONLY)
+**CRITICAL RULE:** Use ONLY the first page to determine document type (with only two specific exceptions noted below).
+
+For each document:
+- Open and display ONLY the first page of the document
+- Ignore any metadata embedded in the document, and ignore my AI-generated information recorded on this website www.myaidrive.com
+- Determine document type based on visual appearance and formatting:
+  a. Visual Cues: Examine layout, formatting, and headers on first page only
+  b. Think about cataloging purpose: If this document were in a library, how would it be indexed?
+  c. Extract only the following if present on the first page:
+    - Document type
+    - Date (in format {{dateFormat}})
+    - Sender/Recipient (for correspondence)
+    - Subject/Title (if prominent)
+    - Attachments (for emails only, and only if explicitly listed)
+
+Follow these strict document type templates:
+- **letter**: Letter from [COMPANY A] to [COMPANY B], dated {{dateFormat}}, Re: [Subject] (include "Re:" only if explicitly shown)
+- **email**: 
+  - **Example:** {{emailFormat}}
+  - **Format Structure:** {{emailFormatPattern}}
+- **email thread**: 
+  - **Example:** {{emailThreadFormat}}
+  - **Format Structure:** {{emailThreadFormatPattern}}
+- **legal documents**: Use exact title as shown (e.g., "Plaintiff's Second Amended Petition")
+- **invoice**: Invoice from [COMPANY] to [CLIENT], dated {{dateFormat}}
+- **contract**: Contract between [PARTY 1] and [PARTY 2], dated {{dateFormat}}
+- **social media**: [Platform] profile of [Name] (e.g., "LinkedIn profile of Jake Ryan")
+- **notes**: Handwritten notes or [Person]'s handwritten notes if author is clearly identified
+- **spreadsheet**: Spreadsheet "[Title]" (use exact title in quotes)
+- **communication**: Slack conversation or other platform-specific descriptors
+- **unknown type**: Other: [Short Identifying Text] (shortest identifying phrase from first page)
+
+Enter the description in the second column of the verification table.
+
+#### Step 4: Extract Bates Numbers
+**CRITICAL RULE:** Bates numbers are essential document serial numbers that are only alpha numeric strings and at the bottom of the page on the left, center, or right side, and they may be partially obscured by sticker or may abut the bottom of an image, and they also may be very close to the page break, and they are never at the top of a page. You will not include "CONFIDENTIAL" or similar notations and are not random strings, and they must be recorded precisely.
+
+For each document, follow this exact process in order:
+1. **First Page Check:**
+   - If complete, readable Bates Number is visible on first page, use format: {{batesFormat}} and STOP
+     - **Example:** {{batesFormat}}
+     - **Format Structure:** {{batesFormatPattern}}
+   - If Bates Number is partially visible but not fully legible (see exceptions below), and STOP
+   - If no Bates Number on first page, continue to step 2
+2. **Full Document Search (EXCEPTION 2 - may look beyond first page):**
+   - Examine all pages of the document for Bates Numbers
+   - If found, use first visible Bates Number as Starting ID and last visible as Ending ID: {{batesFormat}} and STOP
+   - If Bates Numbers are not sequential, list each range separated by commas using your selected format: {{singleBatesFormat}}, {{singleBatesFormat}}
+   - If only page numbers (not Bates Numbers) are found, use: (page) or (pages)
+3. **No Bates Numbers Found:**
+   - Count the total pages in the document
+   - Use format: (No Bates - X pages) where X is the exact page count
+
+Enter the result in the Bates Number column.
+
+#### Step 5: Review and Lock Verification Table
+Before generating the final output, carefully review the table:
+- Exhibit Number: Does it match the file name (without the file extension or folder names)?
+- Description: Is it a document type, not a summary? Does it follow the formatting rules exactly?
+- Bates Number: Was the extraction process followed exactly?
+
+Once the table is verified as 100% accurate, the values in the table are "locked" as the source of truth.
+
+#### Step 6: Generate Final Output List
+Create a list using the exact "locked" values from the verification table:
+
+Format for Each Document:
+\`\`\`
+[Exhibit Number]
+[Description]
+[Bates Number]
+\`\`\`
+Each document entry must be separated by a blank line.
+
+### FORMATTING RULES
+
+#### Dates
+All dates must appear as: {{dateFormat}}
+- **Example:** {{dateFormat}}
+- **Format:** {{dateFormatPattern}}
+
+#### Capitalization
+- Sentence Beginnings: Always capitalize the first word of any description (e.g., "Email from...", "Letter from...", "Contract between...")
+- Company Names: Use the official legal capitalization (e.g., Apple Inc., Microsoft Corporation, Coca-Cola Company)
+- Acronyms: Use their standard format (e.g., IBM, NASA, UNICEF)
+- Proper Nouns: Use standard capitalization (e.g., John Smith, New York City)
+- Document Titles: Use Title Case for legal document titles (capitalize first letter of each major word)
+- Document Types: Use lowercase within sentences (e.g., "an email," "the letter," "this contract"), except when a proper noun is part of the type or when beginning a description
+
+#### Email Formatting
+- **Example:** {{emailFormat}}
+- **Format Structure:** {{emailFormatPattern}}
+
+#### Email Thread Formatting
+- **Example:** {{emailThreadFormat}}
+- **Format Structure:** {{emailThreadFormatPattern}}
+
+#### Bates Numbers
+- **Example:** {{batesFormat}}
+- **Format Structure:** {{batesFormatPattern}}
+- When absent, use page count: (No Bates - X pages) where X is the exact page count
+- For page numbers only: (page) or (pages)
+
+#### Document Type Examples
+- Letter from Acme Corp. to Beta LLC, dated {{dateFormat}}, Re: Sales Agreement
+- {{emailFormat}}
+- Plaintiff's Second Amended Petition
+- LinkedIn profile of Jake Ryan
+- Handwritten notes
+- Spreadsheet "Fourth Quarter Budget"
+- Slack conversation
+
+### CRITICAL RULES AND COMMON MISTAKES TO AVOID
+
+**NUMBER 1 RULE:** No metadata or AI-generated information can be used. The text from the page must be used to determine which document has been tampered with.
+
+1. **File Name Rule:** The exhibit number is ONLY determined by the file name without extension or folder. The order of processing is irrelevant and does not correlate to any tasks at hand.
+
+2. **First Page Only Rule:** Extract information ONLY from the first page, except for:
+   - Verifying email threads
+   - Searching for Bates numbers when not found on first page
+   - Recording the ending Bates number.
+
+3. **No Inference Rule:** Do NOT summarize, infer, interpret, or analyze document content. Focus ONLY on identifying the document type based on the first page's text and visual appearance.
+
+4. **Verification Table:** The table is used to record the initial review of the document and lock the rows of information. Always present this table before the final output list.
+
+5. **Bates Number Priority:** Bates numbers are critical document serial numbers. Documents without Bates numbers must have page counts recorded with the format: (No Bates - X pages)
+
+6. **Never Modify Original Text:** For email subjects, attachment names, and document titles, preserve the text exactly as it appears, including capitalization and punctuation.
+
+### VERIFICATION TABLE AND OUTPUT EXAMPLES
+
+### Verification Table Example:
+
+| Exhibit Number | Description | Bates Number |
+|----------------|-------------|--------------|
+| P23 | Invoice from Acme Corp. to Beta LLC, dated {{dateFormat}} | {{batesFormat}} |
+| 24 | {{emailFormat}} | (No Bates - 2 pages) |
+| PX24 | Letter from Global Inc. to Smith Enterprises, dated {{dateFormat}}, Re: Sales Agreement | {{batesFormat}} |
+| P26 | Plaintiff's Second Amended Petition | {{batesFormat}} |
+| P27 | LinkedIn profile of Jake Ryan | (No Bates - 1 page) |
+| 101 | Handwritten notes | {{batesFormat}} |
+| 450 | Spreadsheet "Fourth Quarter Budget" | {{batesFormat}} |
+| 99 | {{emailThreadFormat}} | {{batesFormat}} |
+#### Final Output List Example:
+
+\`\`\`
+23
+Invoice from Acme Corp. to Beta LLC, dated {{dateFormat}}
+{{batesFormat}}
+
+29
+{{emailFormat}}
+(No Bates - 2 pages)
+
+100
+Letter from Global Inc. to Smith Enterprises, dated {{dateFormat}}, Re: Sales Agreement
+{{batesFormat}}
+
+125
+Plaintiff's Second Amended Petition
+{{batesFormat}}
+
+199
+LinkedIn profile of Jake Ryan
+(No Bates - 1 page)
+
+200
+Handwritten notes
+{{batesFormat}}
+
+201
+Spreadsheet "Fourth Quarter Budget"
+{{batesFormat}}
+
+202 stop stop it stop
+{{emailThreadFormat}}
+{{batesFormat}}
+\`\`\`
+
+Remember: The verification table is the source of truth, and the final output must match it exactly. No inference, no summarization, no interpretation - only exact extraction of visible information.
+
+## WORD LIST PROTOCOL
+
+Triggered by: #wordlist
+
+### Purpose
+
+Generate a comprehensive, alphabetized word list from selected documents for use in a steno dictionary, emphasizing jargon, technical terms, names, companies, and product names.
+
+### Goal
+
+- Aid court reporters in real-time deposition translation.
+- Exclude common English words and possessive forms.
+- Maintain proper capitalization for insertion into reference dictionaries like Merriam-Webster.
+- Common terms, excluding company names and product names, should be in dictionary-ready capitalization format.
+
+### Process
+
+- Each document will be individually examined, and words will be extracted based on specific criteria.
+- If the user provides pasted text, follow the same procedures.
+
+### Term Extraction
+
+- Extract full names (e.g., John Smith, V Thomas Rhyne), including middle names/initials when present. (these are examples and are not to be included in your output)
+- Prioritize the full, legal name (e.g., Acme Corporation, Western Digital Corporation, National Steno Association). (these are examples and are not to be included in your output)
+- Extract official product names (e.g., Ultrastar 7K6000, My Passport), excluding generic descriptions like "hard drive" unless they are part of the product name. (these are examples and are not to be included in your output)
+- Include industry-specific terms (e.g., data vault, dimensional modeling, pipeline, Instant Secure Erase (ISE)), especially those in law, technology, and business. (these are examples and are not to be included in your output)
+- Extract acronyms (e.g., API, SQL, ETL, SAS). If a full form appears in the document, include it. Otherwise, list only the acronym. (these are examples and are not to be included in your output)
+
+### Verbatim Extraction
+Every term included in the word list must be a verbatim extraction from the uploaded files. Do not paraphrase, summarize, infer, or include any terms based on examples in the instructions or other system documentation. The uploaded files are the sole source of content for the word list.
+
+### Exclusion Rules
+
+- Articles (a, an, the)
+- Prepositions (of, in, on, at, to, from, by)
+- Conjunctions (and, but, or)
+- Common auxiliary verbs (is, are, was, were, be, being, been, have, has, had, do, does, did)
+- Highly common verbs (go, get, make, take, use, put, see)
+- Possessive forms (John's, company's)
+- Hyphenated terms where both parts are common (right-of-way), except when one part is a common word (pre-approval should be excluded)
+- Terms that would be understood by a general audience (err on the side of exclusion)
+
+### Capitalization Rules
+
+- Maintain original capitalization for proper nouns (people, companies, organizations, product names, places)
+- Use lowercase for common terms unless always capitalized in standard usage
+- Preserve exact capitalization for acronyms and terms with mixed capitalization (e.g., Bulk Data Encryption (BDE), Snowflake)
+
+### Completeness Check
+
+After generating the initial list, perform a secondary analysis to catch missing terms, especially:
+- Words in unusual grammatical structure
+- Implicitly defined terms
+- Acronyms missing their full form
+
+### List Management & Output Format
+
+- Add extracted words/phrases to a master list
+- Alphabetize the list
+- Remove duplicates
+- Output as plain text (ready for copy-paste into a steno dictionary)
+- Do NOT include numbering, bullet points, or Python code
+
+### Error Handling
+
+- "No documents were uploaded or detected."
+- "Instructions document missing."
+- "Error: Unable to process document [$document_name]."
+
+## FUZZY SPELLING LOOKUP PROTOCOL
+
+Triggered by: #spelling [term] or #spelling followed by a list
+
+### Purpose
+
+Locate exact spellings of terms, names, or phrases within documents when user is unsure of the correct spelling.
+
+### Process
+
+When the user provides a term or terms after #spelling:
+
+- Perform a fuzzy search focusing on finding all potential spelling variations of the term.
+- If the input contains a single term:
+  - Return all instances with their correct spelling, document citation, and contextual passage.
+- If the input contains a list (bullet points or numbered) of terms:
+  - Process each term separately.
+  - Return separate results for each term in the list, maintaining the same order.
+
+### Output Format
+
+For single term:
+- Term: [search term provided by user]
+- Correct Spelling: [exact spelling as found in document]
+- Context: [brief passage containing the term with enough context]
+- Source: [document reference]
+- Location: [page/exhibit number]
+
+For multiple terms (list format):
+- Term: [first search term provided by user]
+- Correct Spelling: [exact spelling as found in document]
+- Context: [brief passage containing the term with enough context]
+- Source: [document reference]
+- Location: [page/exhibit number]
+- Term: [second search term provided by user]
+- Correct Spelling: [exact spelling as found in document]
+- Context: [brief passage containing the term with enough context]
+- Source: [document reference]
+- Location: [page/exhibit number]
+- [and so on for each term in the list]
+
+### Search Parameters
+
+- All searches are performed across all selected documents in the current context.
+- Strong fuzzy matching is applied to find terms even with significant spelling variations.
+- Names, technical terms, and proper nouns are prioritized in the search.
+- If multiple spelling variations are found, all are returned with their context.
+- Results are sorted by confidence level (closest matches first).
+
+| Phonetic Item From User | Correct Spelling From Documents | Location |
+|-------------------------|----------------------------------|----------|
+| [term from user] | [exact spelling as found in document] | [Doc Name, Page #] |
+| [term from user] | [exact spelling as found in document] | [Doc Name, Page #] |
+| [term from user] | [exact spelling as found in document] | [Doc Name, Page #] |
+
+- If multiple matches found, include all in separate table rows
+- Maintain original order for list items
+- For each match, include enough context to understand the full passage
+
+## QUOTE LOCATION PROTOCOL
+
+Triggered by: #quote [excerpt] or #quote followed by a list
+
+### Purpose
+
+- Verify and locate quoted material from testimony or documents using fuzzy matching.
+- Process each excerpt separately if a list is provided.
+- Present results in a rendered table format (not markdown code block)
+
+### Output Format
+
+For all #quote requests, present results in this table format:
+
+| Phonetic Item From User | Correct Spelling From Documents | Location |
+|-------------------------|----------------------------------|----------|
+| [term from user] | [exact quote as found in document] | [Doc Name, Page #] |
+| [term from user] | [exact quote as found in document] | [Doc Name, Page #] |
+| [term from user] | [exact quote as found in document] | [Doc Name, Page #] |
+
+- If multiple matches found, include all in separate table rows
+- Maintain original order for list items
+- For each match, include enough context to understand the full passage
+
+## USER SELECTED FORMATS SUMMARY
+
+### Date Format
+- Example: {{dateFormat}}
+- Format Pattern: {{dateFormatPattern}}
+
+### Bates Number Format
+- Example: {{batesFormat}}
+- Format Structure: {{batesFormatPattern}}
+
+### Email Format
+- Example: {{emailFormat}}
+- Format Structure: {{emailFormatPattern}}
+
+### Email Thread Format
+- Example: {{emailThreadFormat}}
+- Format Structure: {{emailThreadFormatPattern}}
+
+If you would like to have the descriptions in any format other than the default, which is in a table format, followed by a list with the exhibit number on one line, the description on the next, and the Bates/page count on the third line, give the agent an example and indicate you want all of your descriptions formatted this way from now on.`;
+
+    // Function to generate the template with user's selected options
+    function generateTemplate() {
+        // Get all the format patterns
+        const batesFormat = document.getElementById('bates-preview').textContent;
+        const batesFormatPattern = document.getElementById('bates-format-pattern').textContent;
+        const dateFormat = document.getElementById('date-preview').textContent;
+        const dateFormatPattern = document.getElementById('date-format-pattern').textContent;
+        const emailFormat = document.getElementById('email-preview').textContent;
+        const emailFormatPattern = document.getElementById('email-format-pattern').textContent;
+        const emailThreadFormat = document.getElementById('email-thread-preview').textContent;
+        const emailThreadFormatPattern = document.getElementById('email-thread-format-pattern').textContent;
+        
+        // Get the template
+        let result = instructionsTemplate;
+        
+        // Replace placeholders with actual formats
+        result = result.replace(/{{dateFormat}}/g, dateFormat);
+        result = result.replace(/{{dateFormatPattern}}/g, dateFormatPattern);
+        result = result.replace(/{{batesFormat}}/g, batesFormat);
+        result = result.replace(/{{batesFormatPattern}}/g, batesFormatPattern);
+        result = result.replace(/{{emailFormat}}/g, emailFormat);
+        result = result.replace(/{{emailFormatPattern}}/g, emailFormatPattern);
+        result = result.replace(/{{emailThreadFormat}}/g, emailThreadFormat);
+        result = result.replace(/{{emailThreadFormatPattern}}/g, emailThreadFormatPattern);
+        
+        // Add example outputs section
+        result += `
+### Example Outputs
+
+#### Verification Table
+| EXHIBIT | DOCUMENT TYPE | DATE | AUTHOR | RECIPIENT | SUBJECT | BATES | PAGE COUNT |
+|---------|--------------|------|--------|-----------|---------|-------|------------|
+| 1 | Email | ${dateFormat} | Jake Ryan | Samantha Baker | My birthday next year | ${batesFormat} | 2 |
+| 2 | Email Thread | ${dateFormat} | Jake Ryan | Samantha Baker | My birthday next year | ${batesFormat} | 5 |
+
+#### Results
+**Exhibit 1**: Email ${emailFormat}
+
+**Exhibit 2**: Email Thread ${emailThreadFormat}`;
+        
+        // Add the word list protocol and other sections
+        result += ``;
+ 
+        // Update the display with rendered markdown
+        document.getElementById('generatedTemplate').innerHTML = marked.parse(result);
+        
+        // Store the raw markdown for copying
+        document.getElementById('generatedTemplate').setAttribute('data-markdown', result);
+    }
+    
+    // Add event listeners
+    function addEventListeners() {
+        // Bates format event listeners
+        batesParenStart.addEventListener('change', updateBatesPreview);
+        batesSeparator.addEventListener('change', updateBatesPreview);
+        batesEndNumber.addEventListener('change', updateBatesPreview);
+        
+        // Date format event listeners
+        datePart1.addEventListener('change', updateDatePreview);
+        dateSeparator1.addEventListener('change', updateDatePreview);
+        datePart2.addEventListener('change', updateDatePreview);
+        dateYear.addEventListener('change', updateDatePreview);
+        
+        // Email format event listeners
+        for (let i = 1; i <= 7; i++) {
+            document.getElementById(`email_component${i}`).addEventListener('change', updateEmailPreview);
+        }
+        document.getElementById('email_attachment').addEventListener('change', updateEmailPreview);
+        
+        // Email thread format event listeners
+        for (let i = 1; i <= 7; i++) {
+            document.getElementById(`email_thread_component${i}`).addEventListener('change', updateEmailThreadPreview);
+        }
+        document.getElementById('email_thread_attachment').addEventListener('change', updateEmailThreadPreview);
+        
+        // Generate and Copy button
+        document.getElementById('generateAndCopyBtn').addEventListener('click', function() {
+            // First generate the template
+            generateTemplate();
+            
+            // Then copy it to clipboard
+            const templateText = document.getElementById('generatedTemplate').getAttribute('data-markdown');
+            
+            // If templateText is still not available, get the inner text as fallback
+            const textToCopy = templateText || document.getElementById('generatedTemplate').innerText;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    // Store the original button text
+                    const originalText = this.textContent;
+                    
+                    // Change button text to "Copied!"
+                    this.textContent = "Copied!";
+                    
+                    // Add animation class
+                    this.classList.add('copy-animation');
+                    
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.classList.remove('copy-animation');
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                    alert('Failed to copy to clipboard. Please try again.');
+                });
+        });
+    }
+    
+    // Initialize everything
+    function init() {
+        populateDropdowns();
+        updateBatesPreview();
+        updateDatePreview();
+        updateEmailPreview();
+        updateEmailThreadPreview();
+        addEventListeners();
+    }
+    
+    // Run initialization when the document is loaded
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+</html>
